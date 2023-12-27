@@ -17,7 +17,21 @@ const ContextProvider = ({ children }) => {
 
   useEffect(() => {
     navigator.mediaDevices
-      .getUserMedia({ video: true, audio: true })
+      .getUserMedia({
+        video: true,
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          googEchoCancellation: true,
+          googAutoGainControl: true,
+          googNoiseSuppression: true,
+          googHighpassFilter: true,
+          googTypingNoiseDetection: true,
+          googNoiseReduction: true,
+          volume: 1.0,
+        },
+      })
       .then((currentStream) => {
         setStream(currentStream);
         myVideo.current.srcObject = currentStream;
