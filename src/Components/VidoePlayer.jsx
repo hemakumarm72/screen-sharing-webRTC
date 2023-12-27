@@ -15,6 +15,7 @@ const VideoPlayer = () => {
             <Heading as='h5'>{name || 'Name'}</Heading>
             <video
               playsInline
+              muted
               ref={myVideo}
               autoPlay
               width='600'
