@@ -13,7 +13,13 @@ const VideoPlayer = () => {
         <Box>
           <Grid colSpan={1}>
             <Heading as='h5'>{name || 'Name'}</Heading>
-            <video playsInline muted ref={myVideo} autoPlay width='600' />
+            <video
+              playsInline
+              ref={myVideo}
+              autoPlay
+              width='600'
+              style={{ transform: 'scaleX(-1)' }}
+            />
           </Grid>
         </Box>
       )}
@@ -22,7 +28,13 @@ const VideoPlayer = () => {
         <Box>
           <Grid colSpan={1}>
             <Heading as='h5'>{call.name || 'Name'}</Heading>
-            <video playsInline ref={userVideo} autoPlay width='600' />
+            <video
+              playsInline
+              ref={userVideo}
+              autoPlay
+              width='600'
+              style={{ transform: 'scaleX(-1)' }}
+            />
           </Grid>
         </Box>
       )}
