@@ -17,6 +17,9 @@ const VideoPlayer = () => {
 
   function muteCam() {
     stream.getVideoTracks().forEach((track) => {
+      if (track.readyState === 'live') {
+        track.stop();
+      }
       return (track.enabled = !track.enabled);
     });
     setVidoe(vidoe ? false : true);
@@ -33,6 +36,7 @@ const VideoPlayer = () => {
             <Heading as='h5'>{name || 'Name'}</Heading>
             <video
               playsInline
+              muted
               ref={myVideo}
               autoPlay
               width='600'
