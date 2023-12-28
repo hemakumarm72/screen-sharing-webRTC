@@ -17,9 +17,6 @@ const VideoPlayer = () => {
 
   function muteCam() {
     stream.getVideoTracks().forEach((track) => {
-      if (track.readyState === 'live') {
-        track.stop();
-      }
       return (track.enabled = !track.enabled);
     });
     setVidoe(vidoe ? false : true);
