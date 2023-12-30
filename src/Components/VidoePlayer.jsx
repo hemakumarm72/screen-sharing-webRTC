@@ -15,6 +15,8 @@ const VideoPlayer = () => {
     callEnded,
     stream,
     call,
+    userScreenShare,
+    callScreenAccepted,
     screenRecordingStart,
     screenRecordingStop,
   } = useContext(SocketContext);
@@ -44,16 +46,24 @@ const VideoPlayer = () => {
   return (
     <div className='card'>
       {commonScreenShare && (
-        <Box width='100%' height='100vh' border='2px' borderColor='red'>
+        <Box
+          width='100%'
+          height='80vh'
+          border='2px'
+          borderColor='purple'
+          borderStyle='solid'
+        >
           <Grid>
             <video
               className='screenShare'
               playsInline
               muted
-              ref={commonScreenShare}
+              ref={callScreenAccepted ? userScreenShare : commonScreenShare}
               autoPlay
               width='100%'
-              style={{ transform: 'scaleX(1)' }}
+              style={{
+                transform: 'scaleX(1)',
+              }}
             />
           </Grid>
         </Box>
@@ -105,7 +115,7 @@ const VideoPlayer = () => {
         {/* user's video */}
         {callAccepted && !callEnded && (
           <Box>
-            <Grid colSpan={1} border='2px' borderColor='red'>
+            <Grid colSpan={1}>
               <p as='h1'>{call.name || 'Name'}</p>
 
               <video

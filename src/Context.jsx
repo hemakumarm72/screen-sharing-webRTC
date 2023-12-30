@@ -6,9 +6,11 @@ import { RecordRTCPromisesHandler, invokeSaveAsDialog } from 'recordrtc';
 import { injectMetadata } from './utils/decode';
 
 const SocketContext = createContext();
-const socket = io('wss://githubevent.onrender.com');
+const socket = io('http://localhost:8000'); // wss://githubevent.onrender.com
 const ContextProvider = ({ children }) => {
   const [callAccepted, setCallAccepted] = useState(false);
+  const [callScreenAccepted, setCallScreenAccepted] = useState(false);
+
   const [callEnded, setCallEnded] = useState(false);
   const [stream, setStream] = useState({});
   const [screenStream, setScreenStream] = useState({});
@@ -20,8 +22,10 @@ const ContextProvider = ({ children }) => {
   const myVideo = useRef({});
   const userVideo = useRef({});
   const commonScreenShare = useRef({});
+  const userScreenShare = useRef({});
   const connectionRef = useRef();
-
+  const [callScreenAccept, setCallScreenAccept] = useState({});
+  const [client, setClient] = useState();
   useEffect(() => {
     navigator.mediaDevices
       .getUserMedia({
@@ -50,34 +54,24 @@ const ContextProvider = ({ children }) => {
 
     socket.on('me', (id) => setMe(id));
     socket.on('callUser', ({ from, name: callerName, signal }) => {
+      setClient(from);
+      console.log({ from, name: callerName, signal });
       setCall({ isReceivingCall: true, from, name: callerName, signal });
+    });
+    socket.on('callScreen', ({ from, name: callerName, signal }) => {
+      console.log('callscreen', { from, name: callerName, signal });
+
+      setCallScreenAccept({
+        isReceivingCall: true,
+        from,
+        name: callerName,
+        signal,
+      });
     });
   }, []);
 
-  const answerCall = () => {
-    setCallAccepted(true);
-    const peer = new Peer({
-      initiator: false,
-      trickle: false,
-      stream,
-      // wrtc: {
-      //   RTCPeerConnection: {
-      //     encodedInsertableStreams: true,
-      //   },
-      // },
-    });
-    peer.on('signal', (data) => {
-      socket.emit('answerCall', { signal: data, to: call.from });
-    });
-    peer.on('stream', (currentStream) => {
-      userVideo.current.srcObject = currentStream;
-      console.log(currentStream);
-    });
-    peer.signal(call.signal);
-    connectionRef.current = peer;
-  };
-
   const callUser = (id) => {
+    setClient(id);
     const peer = new Peer({
       initiator: true,
       trickle: false,
@@ -96,13 +90,57 @@ const ContextProvider = ({ children }) => {
         name,
       });
     });
-    // peer.on('stream', (currentStream) => {
-    //   userVideo.current.srcObject = currentStream;
-    // });
+    peer.on('stream', (currentStream) => {
+      userVideo.current.srcObject = currentStream;
+    });
     socket.on('callAccepted', (signal) => {
       setCallAccepted(true);
       peer.signal(signal);
     });
+    connectionRef.current = peer;
+  };
+
+  const answerCall = () => {
+    setCallAccepted(true);
+    const peer = new Peer({
+      initiator: false,
+      trickle: false,
+      stream,
+      // wrtc: {
+      //   RTCPeerConnection: {
+      //     encodedInsertableStreams: true,
+      //   },
+      // },
+    });
+    peer.on('signal', (data) => {
+      socket.emit('answerCall', { signal: data, to: call.from });
+    });
+    peer.on('stream', (currentStream) => {
+      userVideo.current.srcObject = currentStream;
+    });
+    peer.signal(call.signal);
+    connectionRef.current = peer;
+  };
+  const answerScreen = () => {
+    setCallScreenAccepted(true);
+    const peer = new Peer({
+      initiator: false,
+      trickle: false,
+      // wrtc: {
+      //   RTCPeerConnection: {
+      //     encodedInsertableStreams: true,
+      //   },
+      // },
+    });
+    peer.on('signal', (data) => {
+      socket.emit('answerScreenCall', { signal: data, to: call.from });
+    });
+
+    peer.on('stream', (currentStream) => {
+      userScreenShare.current.srcObject = currentStream;
+    });
+    console.log(callScreenAccept);
+    peer.signal(callScreenAccept.signal);
     connectionRef.current = peer;
   };
 
@@ -119,9 +157,11 @@ const ContextProvider = ({ children }) => {
         audio: true,
       })
       .then((currentStream) => {
-        currentStream.getVideoTracks()[0].addEventListener('ended', () => {
-          screenRecordingStop();
-        });
+        currentStream
+          .getVideoTracks()[0]
+          .addEventListener('ended', async () => {
+            await screenRecordingStop();
+          });
         setScreenStream(currentStream);
         commonScreenShare.current.srcObject = currentStream;
 
@@ -131,26 +171,53 @@ const ContextProvider = ({ children }) => {
         });
         screenRecorder.startRecording();
         setScreenRecorder(screenRecorder);
+        const peer = new Peer({
+          initiator: true,
+          trickle: false,
+          stream: currentStream,
+        });
+
+        peer.on('signal', (data) => {
+          console.log(client, me);
+          socket.emit('callScreen', {
+            userToCall: client || Math.random(),
+            signalData: data,
+            from: me,
+            name,
+          });
+        });
+        socket.on('callScreenAccepted', (signal) => {
+          setCallScreenAccepted(true);
+          peer.signal(signal);
+        });
+        connectionRef.current = peer;
       })
       .catch((error) => {
         console.log(error);
       });
   };
   const screenRecordingStop = async () => {
-    if (screenRecorder) {
-      await screenRecorder.stopRecording();
-      // let size = bytesToSize(videoRecorder.getBlob().size);
+    try {
+      if (screenRecorder) {
+        await screenRecorder.stopRecording();
+        // let size = bytesToSize(videoRecorder.getBlob().size);
 
-      const currentDate = new Date();
-      const dateString = currentDate.toISOString().replace(/[:.]/g, '-'); // Formatting date string
+        const currentDate = new Date();
+        const dateString = currentDate.toISOString().replace(/[:.]/g, '-'); // Formatting date string
 
-      injectMetadata(await screenRecorder.getBlob()).then((seekableBlob) => {
-        // seekableBlob use this blob to show video or want to store anywhere
+        injectMetadata(await screenRecorder.getBlob()).then((seekableBlob) => {
+          // seekableBlob use this blob to show video or want to store anywhere
 
-        invokeSaveAsDialog(seekableBlob, `screenRecording-${dateString}.webm`);
-      });
+          invokeSaveAsDialog(
+            seekableBlob,
+            `screenRecording-${dateString}.webm`
+          );
+        });
 
-      await screenStream.getTracks().forEach((track) => track.stop()); // Stop tracks when done
+        await screenStream.getTracks().forEach((track) => track.stop()); // Stop tracks when done
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -168,8 +235,12 @@ const ContextProvider = ({ children }) => {
         me,
         callUser,
         leaveCall,
+        answerScreen,
+        callScreenAccept,
         answerCall,
+        callScreenAccepted,
         commonScreenShare,
+        userScreenShare,
         screenRecordingStart,
         screenRecordingStop,
       }}
