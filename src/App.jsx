@@ -1,5 +1,5 @@
 import './App.css';
-import { Box, Heading, Container } from '@chakra-ui/react';
+import { Box, Container } from '@chakra-ui/react';
 import Notifications from './Components/Notifications';
 import Options from './Components/Options';
 import VideoPlayer from './Components/VidoePlayer';
