@@ -1,4 +1,4 @@
-import { Decoder, Encoder, tools, Reader } from 'ts-ebml';
+import { Decoder, tools, Reader } from 'ts-ebml';
 import { Buffer } from 'buffer';
 window.Buffer = Buffer;
 const readAsArrayBuffer = (blob) => {

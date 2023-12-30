@@ -1,4 +1,4 @@
-import { Grid, Box, Heading } from '@chakra-ui/react';
+import { Grid, Box } from '@chakra-ui/react';
 import { SocketContext } from '../Context';
 import { useContext, useEffect, useState } from 'react';
 
