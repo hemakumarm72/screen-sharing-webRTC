@@ -19,7 +19,7 @@ const Options = () => {
   const [idToCall, setIdToCall] = useState('');
 
   return (
-    <Container maxW='1200px' m='35px 0' p='0'>
+    <Container maxW='100vw' m='100px 0' p='0'>
       <Box p='10px' border='2px' borderColor='black' borderStyle='solid'>
         <FormControl
           display='flex'

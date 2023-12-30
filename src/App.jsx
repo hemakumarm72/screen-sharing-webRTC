@@ -7,11 +7,7 @@ import VideoPlayer from './Components/VidoePlayer';
 function App() {
   return (
     <Box>
-      <Container maxW='1200px' mt='8'>
-        <Heading as='h2' size='2xl'>
-          {' '}
-          Video Chat App{' '}
-        </Heading>
+      <Container maxW='100vw'>
         <VideoPlayer />
         <Options />
         <Notifications />

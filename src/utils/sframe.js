@@ -1,4 +1,4 @@
-import {} from 'sframe';
+import { SFrame } from 'sframe/Client';
 
 //Create crypto client
 const senderClient = await SFrame.createClient('kjh', {

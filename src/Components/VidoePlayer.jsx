@@ -8,6 +8,7 @@ const VideoPlayer = () => {
 
   const {
     name,
+    commonScreenShare,
     callAccepted,
     myVideo,
     userVideo,
@@ -41,60 +42,84 @@ const VideoPlayer = () => {
     console.log(vidoe, mic);
   }, [vidoe, mic]);
   return (
-    <Grid justifyContent='center' templateColumns='repeat(2, 1fr)' mt='12'>
-      {/* my video */}
-      {stream && (
-        <Box>
-          <Grid colSpan={1}>
-            <Heading as='h5'>{name || 'Name'}</Heading>
+    <div className='card'>
+      {commonScreenShare && (
+        <Box width='100%' height='100vh' border='2px' borderColor='red'>
+          <Grid>
             <video
+              className='screenShare'
               playsInline
               muted
-              ref={myVideo}
+              ref={commonScreenShare}
               autoPlay
-              width='600'
-              style={{ transform: 'scaleX(-1)' }}
+              width='100%'
+              style={{ transform: 'scaleX(1)' }}
             />
           </Grid>
-          <button
-            className='button'
-            style={{ backgroundColor: !vidoe ? 'red' : '#ea4c89' }}
-            onClick={muteCam}
-          >
-            Vidoe Mute
-          </button>
-          <button
-            className='button'
-            style={{ backgroundColor: !mic ? 'red' : '#ea4c89' }}
-            onClick={muteMic}
-          >
-            Mic Mute
-          </button>
+        </Box>
+      )}
+      <Grid
+        grid-template-areas={
+          ('header header side', 'header header side', 'header header side')
+        }
+        templateColumns='repeat(1fr, 2)'
+      >
+        {/* my video */}
 
-          <button className='button' onClick={screenRecordingStart}>
-            Screen Record
-          </button>
-          <button className='button' onClick={screenRecordingStop}>
-            Screen Record Stop
-          </button>
-        </Box>
-      )}
-      {/* user's video */}
-      {callAccepted && !callEnded && (
-        <Box>
-          <Grid colSpan={1}>
-            <Heading as='h5'>{call.name || 'Name'}</Heading>
-            <video
-              playsInline
-              ref={userVideo}
-              autoPlay
-              width='600'
-              style={{ transform: 'scaleX(-1)' }}
-            />
-          </Grid>
-        </Box>
-      )}
-    </Grid>
+        {stream && (
+          <Box>
+            <Grid colSpan={1}>
+              <p as='h1'>{name || 'Name'}</p>
+              <video
+                playsInline
+                muted
+                ref={myVideo}
+                autoPlay
+                width='500'
+                style={{ transform: 'scaleX(-1)' }}
+              />
+            </Grid>
+            <button
+              className='button'
+              style={{ backgroundColor: !vidoe ? 'red' : '#ea4c89' }}
+              onClick={muteCam}
+            >
+              Vidoe Mute
+            </button>
+            <button
+              className='button'
+              style={{ backgroundColor: !mic ? 'red' : '#ea4c89' }}
+              onClick={muteMic}
+            >
+              Mic Mute
+            </button>
+
+            <button className='button' onClick={screenRecordingStart}>
+              Screen Record
+            </button>
+            <button className='button' onClick={screenRecordingStop}>
+              Screen Record Stop
+            </button>
+          </Box>
+        )}
+        {/* user's video */}
+        {callAccepted && !callEnded && (
+          <Box>
+            <Grid colSpan={1} border='2px' borderColor='red'>
+              <p as='h1'>{call.name || 'Name'}</p>
+
+              <video
+                playsInline
+                ref={userVideo}
+                autoPlay
+                width='500'
+                style={{ transform: 'scaleX(-1)' }}
+              />
+            </Grid>
+          </Box>
+        )}
+      </Grid>
+    </div>
   );
 };
 export default VideoPlayer;

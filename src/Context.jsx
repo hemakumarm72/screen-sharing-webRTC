@@ -19,6 +19,7 @@ const ContextProvider = ({ children }) => {
   const [me, setMe] = useState('');
   const myVideo = useRef({});
   const userVideo = useRef({});
+  const commonScreenShare = useRef({});
   const connectionRef = useRef();
 
   useEffect(() => {
@@ -122,6 +123,7 @@ const ContextProvider = ({ children }) => {
           screenRecordingStop();
         });
         setScreenStream(currentStream);
+        commonScreenShare.current.srcObject = currentStream;
 
         let screenRecorder = new RecordRTCPromisesHandler(currentStream, {
           type: 'video',
@@ -167,6 +169,7 @@ const ContextProvider = ({ children }) => {
         callUser,
         leaveCall,
         answerCall,
+        commonScreenShare,
         screenRecordingStart,
         screenRecordingStop,
       }}

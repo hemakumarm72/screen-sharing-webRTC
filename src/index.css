@@ -45,3 +45,15 @@ code {
 .button:focus {
   background-color: #f082ac;
 }
+
+.card {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
+
+.screenShare {
+  width: 100%;
+  height: 100vh;
+  background-image: cover;
+}
