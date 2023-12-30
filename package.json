@@ -9,15 +9,21 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "extendable-media-recorder": "^9.1.5",
+    "extendable-media-recorder-wav-encoder": "^7.0.101",
+    "fix-webm-duration": "^1.0.5",
     "framer-motion": "^10.16.16",
-    "process": "^0.11.10",
+    "node-polyfill-webpack-plugin": "^3.0.0",
     "react": "^18.2.0",
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.12.0",
     "react-scripts": "5.0.1",
+    "recordrtc": "^5.6.2",
+    "sframe": "^0.1.0",
     "simple-peer": "^9.11.1",
     "socket.io-client": "^4.7.2",
+    "ts-ebml": "^2.0.2",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -43,5 +49,18 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "assert": "^2.1.0",
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.0",
+    "https-browserify": "^1.0.0",
+    "os-browserify": "^0.3.0",
+    "process": "^0.11.10",
+    "react-app-rewired": "^2.2.1",
+    "react-error-overlay": "^6.0.9",
+    "stream-browserify": "^3.0.0",
+    "stream-http": "^3.2.0",
+    "url": "^0.11.3"
   }
 }

@@ -6,8 +6,17 @@ const VideoPlayer = () => {
   const [vidoe, setVidoe] = useState(true);
   const [mic, setMic] = useState(true);
 
-  const { name, callAccepted, myVideo, userVideo, callEnded, stream, call } =
-    useContext(SocketContext);
+  const {
+    name,
+    callAccepted,
+    myVideo,
+    userVideo,
+    callEnded,
+    stream,
+    call,
+    screenRecordingStart,
+    screenRecordingStop,
+  } = useContext(SocketContext);
   function muteMic() {
     stream.getAudioTracks().forEach((track) => {
       return (track.enabled = !track.enabled);
@@ -16,9 +25,16 @@ const VideoPlayer = () => {
   }
 
   function muteCam() {
+    // stream.getTracks()[0].stop();
+    // stream.getVideoTracks().forEach((track) => {
+    //   if (track.readyState === 'live') {
+    //     track.stop();
+    //   }
+    // });
     stream.getVideoTracks().forEach((track) => {
       return (track.enabled = !track.enabled);
     });
+
     setVidoe(vidoe ? false : true);
   }
   useEffect(() => {
@@ -45,7 +61,7 @@ const VideoPlayer = () => {
             style={{ backgroundColor: !vidoe ? 'red' : '#ea4c89' }}
             onClick={muteCam}
           >
-            Vidoes Mute
+            Vidoe Mute
           </button>
           <button
             className='button'
@@ -53,6 +69,13 @@ const VideoPlayer = () => {
             onClick={muteMic}
           >
             Mic Mute
+          </button>
+
+          <button className='button' onClick={screenRecordingStart}>
+            Screen Record
+          </button>
+          <button className='button' onClick={screenRecordingStop}>
+            Screen Record Stop
           </button>
         </Box>
       )}
