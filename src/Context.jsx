@@ -236,10 +236,13 @@ const ContextProvider = ({ children }) => {
           );
         });
 
-        await screenStream.getTracks().forEach((track) => track.stop()); // Stop tracks when done
-        return Promise.resolve();
+        await screenStream.getVideoTracks().forEach((track) => {
+          return (track.enabled = !track.enabled);
+        }); // Stop tracks when done        return Promise.resolve();
       } else {
-        await screenStream.getTracks().forEach((track) => track.stop()); // Stop tracks when done
+        await screenStream.getVideoTracks().forEach((track) => {
+          return (track.enabled = !track.enabled);
+        }); // Stop tracks when done
         return Promise.resolve();
       }
     } catch (error) {
