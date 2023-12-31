@@ -11,6 +11,8 @@ import {
   AlertDialogOverlay,
 } from '@chakra-ui/react';
 import AcceptCallTone from '../assets/music/tones.mp3';
+import RejectCallTone from '../assets/music/popup.mp3';
+
 import notifSound from '../assets/music/notif.mp3';
 const Notifications = () => {
   const {
@@ -40,6 +42,9 @@ const Notifications = () => {
   const AnswerCallTone = () => {
     new Audio(AcceptCallTone).play();
   };
+  const CancelCallTone = () => {
+    new Audio(RejectCallTone).play();
+  };
 
   useEffect(() => {
     if (
@@ -65,7 +70,13 @@ const Notifications = () => {
             Do you Accept {call.name} Vidoe Call Request?
           </AlertDialogBody>
           <AlertDialogFooter>
-            <Button ref={cancelRef} onClick={handleClose}>
+            <Button
+              ref={cancelRef}
+              onClick={() => {
+                handleClose();
+                CancelCallTone();
+              }}
+            >
               No
             </Button>
             <Button
@@ -94,7 +105,13 @@ const Notifications = () => {
             Do you Accept ${callScreenAccept.name} ScreenSharing Request?
           </AlertDialogBody>
           <AlertDialogFooter>
-            <Button ref={cancelRef} onClick={handleClose1}>
+            <Button
+              ref={cancelRef}
+              onClick={() => {
+                handleClose1();
+                CancelCallTone();
+              }}
+            >
               No
             </Button>
             <Button
