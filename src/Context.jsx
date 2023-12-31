@@ -10,8 +10,6 @@ const socket = io('wss://githubevent.onrender.com'); // wss://githubevent.onrend
 const ContextProvider = ({ children }) => {
   const [callAccepted, setCallAccepted] = useState(false);
   const [callScreenAccepted, setCallScreenAccepted] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [executed, setExecuted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const cancelRef = useRef();
   const [callEnded, setCallEnded] = useState(false);
@@ -164,10 +162,13 @@ const ContextProvider = ({ children }) => {
   };
 
   const handleOpen = () => setIsOpen(true);
-  const handleClose = () => setIsOpen(false);
+  const handleClose = async () => {
+    await screenRecordingStop(false);
+    setIsOpen(false);
+  };
   const handleConfirm = async () => {
     // Perform actions when user confirms (clicks Yes)
-    await screenRecordingStop();
+    await screenRecordingStop(true);
     handleClose(); // Close the dialog
 
     // Your logic for "Yes" action
@@ -177,15 +178,16 @@ const ContextProvider = ({ children }) => {
     await navigator.mediaDevices
       .getDisplayMedia({
         video: true,
-        audio: true,
+        audio: false,
       })
       .then((currentStream) => {
         currentStream.getVideoTracks()[0].addEventListener('ended', () => {
-         // handleOpen();
+          // handleOpen();
         });
         setScreenStream(currentStream);
-        commonScreenShare.current.srcObject = currentStream;
-
+        if (commonScreenShare.current) {
+          commonScreenShare.current.srcObject = currentStream;
+        }
         let screenRecorder = new RecordRTCPromisesHandler(currentStream, {
           type: 'video',
           mimeType: 'video/webm;codecs=vp9',
@@ -218,9 +220,9 @@ const ContextProvider = ({ children }) => {
         console.log(error);
       });
   };
-  const screenRecordingStop = async () => {
+  const screenRecordingStop = async (executed = false) => {
     try {
-      if (screenRecorder) {
+      if (screenRecorder && executed) {
         console.log('recording stop vidoe');
         await screenRecorder.stopRecording();
         // let size = bytesToSize(videoRecorder.getBlob().size);
@@ -237,6 +239,9 @@ const ContextProvider = ({ children }) => {
           );
         });
 
+        await screenStream.getTracks().forEach((track) => track.stop()); // Stop tracks when done
+        return Promise.resolve();
+      } else {
         await screenStream.getTracks().forEach((track) => track.stop()); // Stop tracks when done
         return Promise.resolve();
       }
@@ -259,7 +264,7 @@ const ContextProvider = ({ children }) => {
         me,
         callUser,
         leaveCall,
-        showModal,
+        setCall,
         answerScreen,
         handleClose,
         handleConfirm,
@@ -267,6 +272,7 @@ const ContextProvider = ({ children }) => {
         callScreenAccept,
         answerCall,
         callScreenAccepted,
+        setCallScreenAccept,
         commonScreenShare,
         userScreenShare,
         cancelRef,

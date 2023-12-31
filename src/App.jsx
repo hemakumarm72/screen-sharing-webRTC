@@ -32,7 +32,7 @@ function App() {
         <AlertDialogOverlay />
         <AlertDialogContent>
           <AlertDialogHeader>Confirmation</AlertDialogHeader>
-          <AlertDialogBody>Do you want to proceed?</AlertDialogBody>
+          <AlertDialogBody>Do you need Recording Vidoe ?</AlertDialogBody>
           <AlertDialogFooter>
             <Button ref={cancelRef} onClick={handleClose}>
               No
