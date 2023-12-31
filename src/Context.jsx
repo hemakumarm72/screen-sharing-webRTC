@@ -6,7 +6,7 @@ import { RecordRTCPromisesHandler, invokeSaveAsDialog } from 'recordrtc';
 import { injectMetadata } from './utils/decode';
 
 const SocketContext = createContext();
-const socket = io('http://localhost:8000'); // wss://githubevent.onrender.com
+const socket = io('wss://githubevent.onrender.com'); // wss://githubevent.onrender.com
 const ContextProvider = ({ children }) => {
   const [callAccepted, setCallAccepted] = useState(false);
   const [callScreenAccepted, setCallScreenAccepted] = useState(false);
@@ -101,47 +101,56 @@ const ContextProvider = ({ children }) => {
   };
 
   const answerCall = () => {
-    setCallAccepted(true);
-    const peer = new Peer({
-      initiator: false,
-      trickle: false,
-      stream,
-      // wrtc: {
-      //   RTCPeerConnection: {
-      //     encodedInsertableStreams: true,
-      //   },
-      // },
-    });
-    peer.on('signal', (data) => {
-      socket.emit('answerCall', { signal: data, to: call.from });
-    });
-    peer.on('stream', (currentStream) => {
-      userVideo.current.srcObject = currentStream;
-    });
-    peer.signal(call.signal);
-    connectionRef.current = peer;
+    try {
+      setCallAccepted(true);
+      const peer = new Peer({
+        initiator: false,
+        trickle: false,
+        stream,
+        // wrtc: {
+        //   RTCPeerConnection: {
+        //     encodedInsertableStreams: true,
+        //   },
+        // },
+      });
+      peer.on('signal', (data) => {
+        socket.emit('answerCall', { signal: data, to: call.from });
+      });
+      peer.on('stream', (currentStream) => {
+        userVideo.current.srcObject = currentStream;
+      });
+      peer.signal(call.signal);
+      connectionRef.current = peer;
+    } catch (error) {
+      console.log(error);
+    }
   };
   const answerScreen = () => {
-    setCallScreenAccepted(true);
-    const peer = new Peer({
-      initiator: false,
-      trickle: false,
-      // wrtc: {
-      //   RTCPeerConnection: {
-      //     encodedInsertableStreams: true,
-      //   },
-      // },
-    });
-    peer.on('signal', (data) => {
-      socket.emit('answerScreenCall', { signal: data, to: call.from });
-    });
+    try {
+      setCallScreenAccepted(true);
 
-    peer.on('stream', (currentStream) => {
-      userScreenShare.current.srcObject = currentStream;
-    });
-    console.log(callScreenAccept);
-    peer.signal(callScreenAccept.signal);
-    connectionRef.current = peer;
+      const peer = new Peer({
+        initiator: false,
+        trickle: false,
+        // wrtc: {
+        //   RTCPeerConnection: {
+        //     encodedInsertableStreams: true,
+        //   },
+        // },
+      });
+      peer.on('signal', (data) => {
+        socket.emit('answerScreenCall', {
+          signal: data,
+          to: callScreenAccept?.from ?? call?.from,
+        });
+      });
+
+      peer.on('stream', (currentStream) => {
+        userScreenShare.current.srcObject = currentStream;
+      });
+      peer.signal(callScreenAccept.signal);
+      connectionRef.current = peer;
+    } catch (error) {}
   };
 
   const leaveCall = () => {
@@ -187,6 +196,7 @@ const ContextProvider = ({ children }) => {
           });
         });
         socket.on('callScreenAccepted', (signal) => {
+          console.log('screen share accept');
           setCallScreenAccepted(true);
           peer.signal(signal);
         });
