@@ -11,6 +11,7 @@ const VideoPlayer = () => {
     commonScreenShare,
     callAccepted,
     myVideo,
+    handleOpen,
     userVideo,
     callEnded,
     stream,
@@ -18,7 +19,6 @@ const VideoPlayer = () => {
     userScreenShare,
     callScreenAccepted,
     screenRecordingStart,
-    screenRecordingStop,
   } = useContext(SocketContext);
   function muteMic() {
     stream.getAudioTracks().forEach((track) => {
@@ -107,7 +107,7 @@ const VideoPlayer = () => {
             <button className='button' onClick={screenRecordingStart}>
               Screen Record
             </button>
-            <button className='button' onClick={screenRecordingStop}>
+            <button className='button' onClick={handleOpen}>
               Screen Record Stop
             </button>
           </Box>
