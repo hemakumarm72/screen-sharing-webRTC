@@ -109,7 +109,7 @@ const VideoPlayer = () => {
               className={`button ${isRecording ? 'Rec' : ''}`}
               onClick={isRecording ? handleOpen : screenRecordingStart}
             >
-              {isRecording ? 'ScreenSharing' : 'StopSharing'}
+              {!isRecording ? 'ScreenSharing' : 'StopSharing'}
             </button>
             {/* <button className='button' onClick={handleOpen}>
               Screen Record Stop
