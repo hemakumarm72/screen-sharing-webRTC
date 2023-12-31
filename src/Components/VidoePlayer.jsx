@@ -11,6 +11,7 @@ const VideoPlayer = () => {
     commonScreenShare,
     callAccepted,
     myVideo,
+    isRecording,
     handleOpen,
     userVideo,
     callEnded,
@@ -104,12 +105,15 @@ const VideoPlayer = () => {
               Mic Mute
             </button>
 
-            <button className='button' onClick={screenRecordingStart}>
-              Screen Record
+            <button
+              className={`button ${isRecording ? 'Rec' : ''}`}
+              onClick={isRecording ? handleOpen : screenRecordingStart}
+            >
+              {isRecording ? 'ScreenSharing' : 'StopSharing'}
             </button>
-            <button className='button' onClick={handleOpen}>
+            {/* <button className='button' onClick={handleOpen}>
               Screen Record Stop
-            </button>
+            </button> */}
           </Box>
         )}
         {/* user's video */}

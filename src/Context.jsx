@@ -16,6 +16,7 @@ const ContextProvider = ({ children }) => {
   const [stream, setStream] = useState({});
   const [screenStream, setScreenStream] = useState({});
   const [screenRecorder, setScreenRecorder] = useState({});
+  const [isRecording, setIsRecording] = useState(false);
 
   const [name, setName] = useState('');
   const [call, setCall] = useState({});
@@ -161,7 +162,10 @@ const ContextProvider = ({ children }) => {
     window.location.reload();
   };
 
-  const handleOpen = () => setIsOpen(true);
+  const handleOpen = () => {
+    setIsOpen(true);
+    setIsRecording(false);
+  };
   const handleClose = async () => {
     await screenRecordingStop(false);
     setIsOpen(false);
@@ -183,6 +187,7 @@ const ContextProvider = ({ children }) => {
       .then((currentStream) => {
         currentStream.getVideoTracks()[0].addEventListener('ended', () => {
           // handleOpen();
+          setIsRecording(false);
         });
         setScreenStream(currentStream);
         if (commonScreenShare.current) {
@@ -194,6 +199,7 @@ const ContextProvider = ({ children }) => {
         });
         screenRecorder.startRecording();
         setScreenRecorder(screenRecorder);
+        setIsRecording(true);
         const peer = new Peer({
           initiator: true,
           trickle: false,
@@ -275,6 +281,8 @@ const ContextProvider = ({ children }) => {
         setCallScreenAccept,
         commonScreenShare,
         userScreenShare,
+        isRecording,
+        setIsRecording,
         cancelRef,
         isOpen,
         screenRecordingStart,
