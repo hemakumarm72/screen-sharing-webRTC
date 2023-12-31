@@ -61,7 +61,9 @@ const Notifications = () => {
         <AlertDialogOverlay />
         <AlertDialogContent>
           <AlertDialogHeader>Confirmation</AlertDialogHeader>
-          <AlertDialogBody>Do you Accept Vidoe Call Request?</AlertDialogBody>
+          <AlertDialogBody>
+            Do you Accept {call.name} Vidoe Call Request?
+          </AlertDialogBody>
           <AlertDialogFooter>
             <Button ref={cancelRef} onClick={handleClose}>
               No
@@ -89,7 +91,7 @@ const Notifications = () => {
         <AlertDialogContent>
           <AlertDialogHeader>Confirmation</AlertDialogHeader>
           <AlertDialogBody>
-            Do you Accept ScreenSharing Request?
+            Do you Accept ${callScreenAccept.name} ScreenSharing Request?
           </AlertDialogBody>
           <AlertDialogFooter>
             <Button ref={cancelRef} onClick={handleClose1}>
