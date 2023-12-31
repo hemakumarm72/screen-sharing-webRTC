@@ -4,7 +4,7 @@ import Notifications from './Components/Notifications';
 import Options from './Components/Options';
 import VideoPlayer from './Components/VidoePlayer';
 import { SocketContext } from './Context';
-import { useContext, useEffect, useState } from 'react';
+import { useContext } from 'react';
 import {
   Button,
   AlertDialog,
@@ -16,12 +16,8 @@ import {
 } from '@chakra-ui/react';
 
 function App() {
-  const {
-    handleClose,
-    handleConfirm,
-    cancelRef,
-    isOpen,
-  } = useContext(SocketContext);
+  const { handleClose, handleConfirm, cancelRef, isOpen } =
+    useContext(SocketContext);
   return (
     <Box>
       <AlertDialog
