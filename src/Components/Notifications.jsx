@@ -1,4 +1,5 @@
-import { useContext, useRef, useState } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useContext, useEffect, useRef, useState } from 'react';
 import { Box, Button, Heading } from '@chakra-ui/react';
 import { SocketContext } from '../Context';
 import {
@@ -9,7 +10,9 @@ import {
   AlertDialogContent,
   AlertDialogOverlay,
 } from '@chakra-ui/react';
+import { useSound } from 'use-sound';
 
+import notifSound from '../assets/music/notif.mp3';
 const Notifications = () => {
   const {
     answerCall,
@@ -22,7 +25,6 @@ const Notifications = () => {
     callAccepted,
   } = useContext(SocketContext);
 
-  const [isOpen, setIsOpen] = useState(false);
   const cancelRef = useRef();
 
   const handleClose = () => {
@@ -35,6 +37,16 @@ const Notifications = () => {
       isReceivingCall: false,
     });
   };
+
+  useEffect(() => {
+    if (
+      (call.isReceivingCall && !callAccepted) ||
+      (callScreenAccept.isReceivingCall && !callScreenAccepted)
+    ) {
+      console.log('dsfd');
+      new Audio(notifSound).play();
+    }
+  }, [call, callScreenAccept, callAccepted, callScreenAccepted]);
 
   return (
     <>
