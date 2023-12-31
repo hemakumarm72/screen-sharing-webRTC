@@ -4,7 +4,6 @@ import { io } from 'socket.io-client';
 import Peer from 'simple-peer';
 import { RecordRTCPromisesHandler, invokeSaveAsDialog } from 'recordrtc';
 import { injectMetadata } from './utils/decode';
-
 const SocketContext = createContext();
 const socket = io('wss://githubevent.onrender.com'); // wss://githubevent.onrender.com
 const ContextProvider = ({ children }) => {
@@ -79,11 +78,6 @@ const ContextProvider = ({ children }) => {
       initiator: true,
       trickle: false,
       stream,
-      // wrtc: {
-      //   RTCPeerConnection: {
-      //     encodedInsertableStreams: true,
-      //   },
-      // },
     });
     peer.on('signal', (data) => {
       socket.emit('callUser', {
@@ -110,16 +104,13 @@ const ContextProvider = ({ children }) => {
         initiator: false,
         trickle: false,
         stream,
-        // wrtc: {
-        //   RTCPeerConnection: {
-        //     encodedInsertableStreams: true,
-        //   },
-        // },
       });
       peer.on('signal', (data) => {
         socket.emit('answerCall', { signal: data, to: call.from });
       });
       peer.on('stream', (currentStream) => {
+        console.log(currentStream);
+
         userVideo.current.srcObject = currentStream;
       });
       peer.signal(call.signal);
@@ -135,11 +126,6 @@ const ContextProvider = ({ children }) => {
       const peer = new Peer({
         initiator: false,
         trickle: false,
-        // wrtc: {
-        //   RTCPeerConnection: {
-        //     encodedInsertableStreams: true,
-        //   },
-        // },
       });
       peer.on('signal', (data) => {
         socket.emit('answerScreenCall', {
@@ -179,7 +165,7 @@ const ContextProvider = ({ children }) => {
     console.log('User clicked Yes');
   };
   const screenRecordingStart = async () => {
-    await navigator.mediaDevices
+    navigator.mediaDevices
       .getDisplayMedia({
         video: true,
         audio: false,

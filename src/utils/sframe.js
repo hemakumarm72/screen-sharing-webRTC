@@ -1,58 +1,134 @@
-import { SFrame } from 'sframe/Client';
+import { SFrame } from 'sframe/.js';
+// import { Utils } from 'sframe/lib/Utils';
 
-//Create crypto client
-const senderClient = await SFrame.createClient('kjh', {
-  skipVp8PayloadHeader: true,
-});
-/*
- Get some key material to use as input to the deriveKey method.
- The key material is a secret key supplied by the user.
- */
-async function getRoomKey(roomId, secret) {
-  const enc = new TextEncoder();
-  const keyMaterial = await window.crypto.subtle.importKey(
-    'raw',
-    enc.encode(secret),
-    { name: 'PBKDF2' },
-    false,
-    ['deriveBits', 'deriveKey']
-  );
-  return window.crypto.subtle.deriveKey(
+async function connect() {
+  /*
+	 Get some key material to use as input to the deriveKey method.
+	 The key material is a secret key supplied by the user.
+	 */
+  async function getRoomKey(roomId, secret) {
+    const enc = new TextEncoder();
+    const keyMaterial = await window.crypto.subtle.importKey(
+      'raw',
+      enc.encode(secret),
+      { name: 'PBKDF2' },
+      false,
+      ['deriveBits', 'deriveKey']
+    );
+    return window.crypto.subtle.deriveKey(
+      {
+        name: 'PBKDF2',
+        salt: enc.encode(roomId),
+        iterations: 100000,
+        hash: 'SHA-256',
+      },
+      keyMaterial,
+      { name: 'AES-CTR', length: 256 },
+      true,
+      ['encrypt', 'decrypt']
+    );
+  }
+
+  //Get keys
+  const shared = await getRoomKey('roomId', 'password');
+  const keyPair = await window.crypto.subtle.generateKey(
     {
-      name: 'PBKDF2',
-      salt: enc.encode(roomId),
-      iterations: 100000,
-      hash: 'SHA-256',
+      name: 'ECDSA',
+      namedCurve: 'P-521',
     },
-    keyMaterial,
-    { name: 'AES-CTR', length: 256 },
     true,
-    ['encrypt', 'decrypt']
+    ['sign', 'verify']
   );
-}
-//Shared key for encryption
-const shared = await getRoomKey(roomid, secret);
+  //Get cam+mic
+  const stream = await navigator.mediaDevices.getUserMedia({
+    audio: true,
+    video: true,
+  });
 
-// Key pair for signing and verifying
-const keyPair = await window.crypto.subtle.generateKey(
-  {
-    name: 'ECDSA',
-    namedCurve: 'P-521',
-  },
-  true,
-  ['sign', 'verify']
-);
-await senderClient.setSenderEncryptionKey(shared);
-await senderClient.setSenderSigningKey(keyPair.privateKey);
+  //Create pcs
+  const sender = (window.sender = new RTCPeerConnection({
+    forceEncodedVideoInsertableStreams: true,
+    forceEncodedAudioInsertableStreams: true,
+    encodedInsertableStreams: true,
+  }));
+  const receiver = (window.receiver = new RTCPeerConnection({
+    forceEncodedVideoInsertableStreams: true,
+    forceEncodedAudioInsertableStreams: true,
+    encodedInsertableStreams: true,
+  }));
 
-//Encrypt it
-for (const transceiver of senderClient.getTransceivers())
-  pc.encrypt(transceiver.mid, transceiver.sender);
+  const senderId = 0;
+  const receiverId = 1;
 
-// OR you can do insted
-for (const track of stream.getTracks()) {
-  //Add to pc
-  const sender = pc.addTrack(track);
+  //Create contexts
+  const senderClient = await SFrame.createClient(senderId, {
+    skipVp8PayloadHeader: true,
+  });
+  const receiverClient = await SFrame.createClient(receiverId, {
+    skipVp8PayloadHeader: true,
+  });
+
+  await senderClient.setSenderEncryptionKey(shared);
+  await senderClient.setSenderSigningKey(keyPair.privateKey);
+
+  await receiverClient.addReceiver(senderId);
+  await receiverClient.setReceiverEncryptionKey(senderId, shared);
+  await receiverClient.setReceiverVerifyKey(senderId, keyPair.publicKey);
+
+  receiverClient.addEventListener('authenticated', (event) =>
+    console.log(
+      'Authenticated receiver ' + event.id + ' for sender ' + event.senderId
+    )
+  );
+
+  //Set it on the local video
+  local.srcObject = stream;
+  local.play();
+
+  receiver.ontrack = (event) => {
+    const track = event.track;
+    const stream = event.streams[0];
+
+    if (!remote.srcObject) {
+      //Set src stream
+      remote.srcObject = stream;
+      remote.play();
+    }
+
+    //decyprt
+    receiverClient.decrypt(event.transceiver.mid, event.receiver);
+  };
+
+  //Interchange candidates
+  sender.onicecandidate = ({ candidate }) =>
+    candidate && receiver.addIceCandidate(candidate);
+  receiver.onicecandidate = ({ candidate }) =>
+    candidate && sender.addIceCandidate(candidate);
+
+  //Add all tracks
+  //Add track
+  for (const track of stream.getTracks()) sender.addTrack(track, stream);
+
+  const offer = await sender.createOffer();
+  await sender.setLocalDescription(offer);
+  await receiver.setRemoteDescription(offer);
+
+  //For each sender
   //Encrypt it
-  senderClient.encrypt(track.id, sender);
+  for (const transceiver of sender.getTransceivers())
+    senderClient.encrypt(transceiver.mid, transceiver.sender);
+
+  const answer = await receiver.createAnswer();
+  await receiver.setLocalDescription(answer);
+  await sender.setRemoteDescription(answer);
 }
+
+document.body.onload = () => {
+  const dialog = document.querySelector('dialog');
+  dialog.showModal();
+  dialog.querySelector('button').addEventListener('click', function (event) {
+    dialog.close();
+    connect();
+    event.preventDefault();
+  });
+};
