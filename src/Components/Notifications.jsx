@@ -10,7 +10,7 @@ import {
   AlertDialogContent,
   AlertDialogOverlay,
 } from '@chakra-ui/react';
-
+import AcceptCallTone from '../assets/music/tones.mp3';
 import notifSound from '../assets/music/notif.mp3';
 const Notifications = () => {
   const {
@@ -35,6 +35,10 @@ const Notifications = () => {
     setCallScreenAccept({
       isReceivingCall: false,
     });
+  };
+
+  const AnswerCallTone = () => {
+    new Audio(AcceptCallTone).play();
   };
 
   useEffect(() => {
@@ -62,7 +66,14 @@ const Notifications = () => {
             <Button ref={cancelRef} onClick={handleClose}>
               No
             </Button>
-            <Button colorScheme='red' onClick={answerCall} ml={3}>
+            <Button
+              colorScheme='red'
+              onClick={() => {
+                answerCall();
+                AnswerCallTone();
+              }}
+              ml={3}
+            >
               Yes
             </Button>
           </AlertDialogFooter>
@@ -84,7 +95,14 @@ const Notifications = () => {
             <Button ref={cancelRef} onClick={handleClose1}>
               No
             </Button>
-            <Button colorScheme='red' onClick={answerScreen} ml={3}>
+            <Button
+              colorScheme='red'
+              onClick={() => {
+                answerScreen();
+                AnswerCallTone();
+              }}
+              ml={3}
+            >
               Yes
             </Button>
           </AlertDialogFooter>
