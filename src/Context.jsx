@@ -73,11 +73,15 @@ const ContextProvider = ({ children }) => {
   }, []);
 
   const callUser = (id) => {
-    setClient(id);
     const peer = new Peer({
       initiator: true,
       trickle: false,
       stream,
+      // wrtc: {
+      //   RTCPeerConnection: {
+      //     encodedInsertableStreams: true,
+      //   },
+      // },
     });
     peer.on('signal', (data) => {
       socket.emit('callUser', {
@@ -87,9 +91,9 @@ const ContextProvider = ({ children }) => {
         name,
       });
     });
-    peer.on('stream', (currentStream) => {
-      userVideo.current.srcObject = currentStream;
-    });
+    // peer.on('stream', (currentStream) => {
+    //   userVideo.current.srcObject = currentStream;
+    // });
     socket.on('callAccepted', (signal) => {
       setCallAccepted(true);
       peer.signal(signal);
@@ -98,27 +102,28 @@ const ContextProvider = ({ children }) => {
   };
 
   const answerCall = () => {
-    try {
-      setCallAccepted(true);
-      const peer = new Peer({
-        initiator: false,
-        trickle: false,
-        stream,
-      });
-      peer.on('signal', (data) => {
-        socket.emit('answerCall', { signal: data, to: call.from });
-      });
-      peer.on('stream', (currentStream) => {
-        console.log(currentStream);
-
-        userVideo.current.srcObject = currentStream;
-      });
-      peer.signal(call.signal);
-      connectionRef.current = peer;
-    } catch (error) {
-      console.log(error);
-    }
+    setCallAccepted(true);
+    const peer = new Peer({
+      initiator: false,
+      trickle: false,
+      stream,
+      // wrtc: {
+      //   RTCPeerConnection: {
+      //     encodedInsertableStreams: true,
+      //   },
+      // },
+    });
+    peer.on('signal', (data) => {
+      socket.emit('answerCall', { signal: data, to: call.from });
+    });
+    peer.on('stream', (currentStream) => {
+      userVideo.current.srcObject = currentStream;
+      console.log(currentStream);
+    });
+    peer.signal(call.signal);
+    connectionRef.current = peer;
   };
+
   const answerScreen = () => {
     try {
       setCallScreenAccepted(true);
