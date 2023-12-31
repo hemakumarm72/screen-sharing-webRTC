@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useContext, useEffect, useRef, useState } from 'react';
-import { Box, Button, Heading } from '@chakra-ui/react';
+import { useContext, useEffect, useRef } from 'react';
+import { Button } from '@chakra-ui/react';
 import { SocketContext } from '../Context';
 import {
   AlertDialog,
@@ -10,7 +10,6 @@ import {
   AlertDialogContent,
   AlertDialogOverlay,
 } from '@chakra-ui/react';
-import { useSound } from 'use-sound';
 
 import notifSound from '../assets/music/notif.mp3';
 const Notifications = () => {
