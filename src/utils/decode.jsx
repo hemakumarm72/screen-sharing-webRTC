@@ -1,4 +1,6 @@
 import { Decoder, tools, Reader } from 'ts-ebml';
+import AES256 from 'crypto-js/aes';
+import Utf8 from 'crypto-js/enc-utf8';
 import { Buffer } from 'buffer';
 window.Buffer = Buffer;
 const readAsArrayBuffer = (blob) => {
@@ -37,3 +39,19 @@ export const injectMetadata = (blob) => {
     return new Blob([refinedMetadataBuf, body], { type: blob.type });
   });
 };
+
+export const encryptSenderKey = (senderKey, fileKey) => {
+  return AES256.encrypt(senderKey, fileKey).toString();
+};
+
+export const decryptSenderKey = (encryptSenderKey, fileKey) => {
+  return AES256.decrypt(encryptSenderKey, fileKey).toString(Utf8);
+};
+
+// export const test = () => {
+//   var seed = superCop.createSeed();
+//   var keys = superCop.createKeyPair(seed);
+//   var msg = new TextEncoder('utf-8').encode('hello there');
+//   var sig = superCop.sign(msg, keys.publicKey, keys.secretKey);
+//   console.log(superCop.verify(sig, msg, keys.publicKey)); // true
+// };

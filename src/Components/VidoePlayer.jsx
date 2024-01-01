@@ -61,7 +61,7 @@ const VideoPlayer = () => {
               muted
               ref={callScreenAccepted ? userScreenShare : commonScreenShare}
               autoPlay
-              width='100%'
+              width='90%'
               style={{
                 transform: 'scaleX(1)',
               }}

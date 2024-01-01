@@ -4,6 +4,8 @@ import { io } from 'socket.io-client';
 import Peer from 'simple-peer';
 import { RecordRTCPromisesHandler, invokeSaveAsDialog } from 'recordrtc';
 import { injectMetadata } from './utils/decode';
+
+import wrtc from 'wrtc';
 const SocketContext = createContext();
 const socket = io('wss://githubevent.onrender.com'); // wss://githubevent.onrender.com
 const ContextProvider = ({ children }) => {
@@ -62,7 +64,7 @@ const ContextProvider = ({ children }) => {
     });
     socket.on('callScreen', ({ from, name: callerName, signal }) => {
       console.log('callscreen', { from, name: callerName, signal });
-
+      setCallScreenAccepted(false);
       setCallScreenAccept({
         isReceivingCall: true,
         from,
@@ -76,13 +78,17 @@ const ContextProvider = ({ children }) => {
     const peer = new Peer({
       initiator: true,
       trickle: false,
-      stream,
+      wrtc,
+
+      // stream,
       // wrtc: {
       //   RTCPeerConnection: {
       //     encodedInsertableStreams: true,
       //   },
       // },
     });
+    peer.
+    peer.addStream(stream);
     peer.on('signal', (data) => {
       socket.emit('callUser', {
         userToCall: id,
@@ -91,9 +97,9 @@ const ContextProvider = ({ children }) => {
         name,
       });
     });
-    // peer.on('stream', (currentStream) => {
-    //   userVideo.current.srcObject = currentStream;
-    // });
+    peer.on('stream', (currentStream) => {
+      userVideo.current.srcObject = currentStream;
+    });
     socket.on('callAccepted', (signal) => {
       setCallAccepted(true);
       peer.signal(signal);
@@ -106,13 +112,16 @@ const ContextProvider = ({ children }) => {
     const peer = new Peer({
       initiator: false,
       trickle: false,
-      stream,
+      // stream,
+      wrtc,
       // wrtc: {
       //   RTCPeerConnection: {
       //     encodedInsertableStreams: true,
       //   },
       // },
     });
+    peer.addStream(stream);
+
     peer.on('signal', (data) => {
       socket.emit('answerCall', { signal: data, to: call.from });
     });
@@ -217,7 +226,7 @@ const ContextProvider = ({ children }) => {
         console.log(error);
       });
   };
-  const screenRecordingStop = async (executed = false) => {
+  const screenRecordingStop = async (executed) => {
     try {
       if (screenRecorder && executed) {
         console.log('recording stop vidoe');
@@ -236,10 +245,15 @@ const ContextProvider = ({ children }) => {
           );
         });
 
-        await screenRecorder.getTracks().forEach((track) => track.stop()); // Stop tracks when done
+        await screenStream.getTracks().forEach((track) => track.stop()); // Stop tracks when done
+        connectionRef.current = '';
+
+        return Promise.resolve();
+
         // Stop tracks when done        return Promise.resolve();
       } else {
-        await screenRecorder.getTracks().forEach((track) => track.stop()); // Stop tracks when done
+        await screenStream.getTracks().forEach((track) => track.stop()); // Stop tracks when done
+        connectionRef.current = '';
 
         return Promise.resolve();
       }

@@ -9,6 +9,7 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "crypto-js": "^4.2.0",
     "fix-webm-duration": "^1.0.5",
     "framer-motion": "^10.16.16",
     "node-polyfill-webpack-plugin": "^3.0.0",
@@ -21,9 +22,12 @@
     "sframe": "^0.1.0",
     "simple-peer": "^9.11.1",
     "socket.io-client": "^4.7.2",
+    "supercop": "^3.0.1",
+    "supercop.wasm": "^5.0.1",
     "ts-ebml": "^2.0.2",
     "use-sound": "^4.0.1",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "wrtc": "^0.4.7"
   },
   "scripts": {
     "start": "react-scripts start",
