@@ -2,10 +2,12 @@
 import { createContext, useState, useRef, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import Peer from 'simple-peer';
+
 import { RecordRTCPromisesHandler, invokeSaveAsDialog } from 'recordrtc';
 import { injectMetadata } from './utils/decode';
 
 import wrtc from 'wrtc';
+
 const SocketContext = createContext();
 const socket = io('wss://githubevent.onrender.com'); // wss://githubevent.onrender.com
 const ContextProvider = ({ children }) => {
@@ -30,6 +32,7 @@ const ContextProvider = ({ children }) => {
   const connectionRef = useRef();
   const [callScreenAccept, setCallScreenAccept] = useState({});
   const [client, setClient] = useState();
+
   useEffect(() => {
     navigator.mediaDevices
       .getUserMedia({
@@ -75,9 +78,12 @@ const ContextProvider = ({ children }) => {
   }, []);
 
   const callUser = (id) => {
+    // in your client code - create a wrapper and connect to your server
+
     const peer = new Peer({
       initiator: true,
       trickle: false,
+
       wrtc,
 
       // stream,
@@ -87,7 +93,6 @@ const ContextProvider = ({ children }) => {
       //   },
       // },
     });
-    peer.
     peer.addStream(stream);
     peer.on('signal', (data) => {
       socket.emit('callUser', {

@@ -21,6 +21,7 @@
     "recordrtc": "^5.6.2",
     "sframe": "^0.1.0",
     "simple-peer": "^9.11.1",
+    "simple-peer-wrapper": "^0.0.5",
     "socket.io-client": "^4.7.2",
     "supercop": "^3.0.1",
     "supercop.wasm": "^5.0.1",
