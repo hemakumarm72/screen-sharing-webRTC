@@ -206,7 +206,7 @@ const ContextProvider = ({ children }) => {
     navigator.mediaDevices
       .getDisplayMedia({
         video: true,
-        audio: false,
+        audio: true,
       })
       .then((currentStream) => {
         currentStream.getVideoTracks()[0].addEventListener('ended', () => {
