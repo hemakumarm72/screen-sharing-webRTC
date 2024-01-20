@@ -85,15 +85,24 @@ const ContextProvider = ({ children }) => {
       trickle: false,
 
       wrtc,
+      config: {
+        iceServers: [
+          {
+            urls: 'turn:video.turn.thelifeplushospital.co.in',
+            credential: 1234,
+            username: 'lifeplus',
+          },
+        ],
+      },
 
-      // stream,
+      stream,
       // wrtc: {
       //   RTCPeerConnection: {
       //     encodedInsertableStreams: true,
       //   },
       // },
     });
-    peer.addStream(stream);
+    // peer.addStream(stream);
     peer.on('signal', (data) => {
       socket.emit('callUser', {
         userToCall: id,
@@ -117,15 +126,25 @@ const ContextProvider = ({ children }) => {
     const peer = new Peer({
       initiator: false,
       trickle: false,
-      // stream,
+      stream,
+
       wrtc,
+      config: {
+        iceServers: [
+          {
+            urls: 'turn:video.turn.thelifeplushospital.co.in',
+            credential: 1234,
+            username: 'lifeplus',
+          },
+        ],
+      },
       // wrtc: {
       //   RTCPeerConnection: {
       //     encodedInsertableStreams: true,
       //   },
       // },
     });
-    peer.addStream(stream);
+    //peer.addStream(stream);
 
     peer.on('signal', (data) => {
       socket.emit('answerCall', { signal: data, to: call.from });
