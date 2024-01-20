@@ -227,6 +227,15 @@ const ContextProvider = ({ children }) => {
         const peer = new Peer({
           initiator: true,
           trickle: false,
+          config: {
+            iceServers: [
+              {
+                urls: 'turn:video.turn.thelifeplushospital.co.in',
+                credential: 1234,
+                username: 'lifeplus',
+              },
+            ],
+          },
           stream: currentStream,
         });
 
