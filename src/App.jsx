@@ -14,10 +14,14 @@ import {
   AlertDialogContent,
   AlertDialogOverlay,
 } from '@chakra-ui/react';
+import * as process from 'process';
 
 function App() {
   const { handleClose, handleConfirm, cancelRef, isOpen } =
     useContext(SocketContext);
+  window.global = window;
+  window.process = process;
+  window.Buffer = [];
   return (
     <Box>
       <AlertDialog

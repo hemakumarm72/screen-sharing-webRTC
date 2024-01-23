@@ -30,6 +30,7 @@ const ContextProvider = ({ children }) => {
   const commonScreenShare = useRef({});
   const userScreenShare = useRef({});
   const connectionRef = useRef();
+  const connectionRef1 = useRef();
   const [callScreenAccept, setCallScreenAccept] = useState({});
   const [client, setClient] = useState();
 
@@ -111,6 +112,8 @@ const ContextProvider = ({ children }) => {
         name,
       });
     });
+
+    setClient(id);
     peer.on('stream', (currentStream) => {
       userVideo.current.srcObject = currentStream;
     });
@@ -145,7 +148,7 @@ const ContextProvider = ({ children }) => {
       // },
     });
     //peer.addStream(stream);
-
+    setCall(call.from);
     peer.on('signal', (data) => {
       socket.emit('answerCall', { signal: data, to: call.from });
     });
@@ -203,61 +206,62 @@ const ContextProvider = ({ children }) => {
     console.log('User clicked Yes');
   };
   const screenRecordingStart = async () => {
-    navigator.mediaDevices
-      .getDisplayMedia({
-        video: true,
-        audio: true,
-      })
-      .then((currentStream) => {
-        currentStream.getVideoTracks()[0].addEventListener('ended', () => {
-          // handleOpen();
-          setIsRecording(false);
-        });
-        setScreenStream(currentStream);
-        if (commonScreenShare.current) {
-          commonScreenShare.current.srcObject = currentStream;
-        }
-        let screenRecorder = new RecordRTCPromisesHandler(currentStream, {
-          type: 'video',
-          mimeType: 'video/webm;codecs=vp9',
-        });
-        screenRecorder.startRecording();
-        setScreenRecorder(screenRecorder);
-        setIsRecording(true);
-        const peer = new Peer({
-          initiator: true,
-          trickle: false,
-          config: {
-            iceServers: [
-              {
-                urls: 'turn:video.turn.thelifeplushospital.co.in',
-                credential: 1234,
-                username: 'lifeplus',
-              },
-            ],
-          },
-          stream: currentStream,
-        });
-
-        peer.on('signal', (data) => {
-          console.log(client, me);
-          socket.emit('callScreen', {
-            userToCall: client || Math.random(),
-            signalData: data,
-            from: me,
-            name,
+    try {
+      navigator.mediaDevices
+        .getDisplayMedia({
+          video: true,
+          audio: true,
+        })
+        .then((currentStream) => {
+          currentStream.getVideoTracks()[0].addEventListener('ended', () => {
+            // handleOpen();
+            handleOpen();
           });
+          setScreenStream(currentStream);
+          if (commonScreenShare.current) {
+            commonScreenShare.current.srcObject = currentStream;
+          }
+          let screenRecorder = new RecordRTCPromisesHandler(currentStream, {
+            type: 'video',
+            mimeType: 'video/webm;codecs=vp9',
+          });
+          screenRecorder.startRecording();
+          setScreenRecorder(screenRecorder);
+          setIsRecording(true);
+          const peer = new Peer({
+            initiator: true,
+            trickle: false,
+            config: {
+              iceServers: [
+                {
+                  urls: 'turn:video.turn.thelifeplushospital.co.in',
+                  credential: 1234,
+                  username: 'lifeplus',
+                },
+              ],
+            },
+            stream: currentStream,
+          });
+
+          peer.on('signal', (data) => {
+            console.log(client, me);
+            socket.emit('callScreen', {
+              userToCall: client || Math.random(),
+              signalData: data,
+              from: me,
+              name,
+            });
+          });
+          socket.on('callScreenAccepted', (signal) => {
+            console.log('screen share accept');
+            setCallScreenAccepted(true);
+            peer.signal(signal);
+          });
+          connectionRef1.current = peer;
         });
-        socket.on('callScreenAccepted', (signal) => {
-          console.log('screen share accept');
-          setCallScreenAccepted(true);
-          peer.signal(signal);
-        });
-        connectionRef.current = peer;
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    } catch (error) {
+      console.log(error);
+    }
   };
   const screenRecordingStop = async (executed) => {
     try {
@@ -279,17 +283,19 @@ const ContextProvider = ({ children }) => {
         });
 
         await screenStream.getTracks().forEach((track) => track.stop()); // Stop tracks when done
-        connectionRef.current = '';
+        connectionRef1.current.destroy();
+
+        setCallScreenAccepted(false);
 
         return Promise.resolve();
 
         // Stop tracks when done        return Promise.resolve();
-      } else {
-        await screenStream.getTracks().forEach((track) => track.stop()); // Stop tracks when done
-        connectionRef.current = '';
-
-        return Promise.resolve();
       }
+      await screenStream.getTracks().forEach((track) => track.stop()); // Stop tracks when done
+      connectionRef1.current.destroy();
+      setCallScreenAccepted(false);
+
+      return Promise.resolve();
     } catch (error) {
       console.log(error);
     }

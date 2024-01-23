@@ -37,7 +37,10 @@ const Options = () => {
                 onChange={(e) => setName(e.target.value)}
                 width='100%'
               />
-              <CopyToClipboard text={me} mt='20'>
+              <CopyToClipboard
+                text={`${window.location.href}code=${me}`}
+                mt='20'
+              >
                 <Button
                   leftIcon={<BiClipboard />}
                   colorScheme='teal'
