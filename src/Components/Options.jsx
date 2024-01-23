@@ -47,7 +47,10 @@ const Options = () => {
                 onChange={(e) => setName(e.target.value)}
                 width='100%'
               />
-              <CopyToClipboard text={`${currentUrl()}?code=${me}`} mt='20'>
+              <CopyToClipboard
+                text={`${'https://adorable-gecko-75e96e.netlify.app'}?code=${me}`}
+                mt='20'
+              >
                 <Button
                   leftIcon={<BiClipboard />}
                   colorScheme='teal'
