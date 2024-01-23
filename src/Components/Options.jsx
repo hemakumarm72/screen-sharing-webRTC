@@ -48,7 +48,7 @@ const Options = () => {
                 width='100%'
               />
               <CopyToClipboard
-                text={'https://adorable-gecko-75e96e.netlify.app?code='`${me}`}
+                text={`${'https://adorable-gecko-75e96e.netlify.app'}?code=${me}`}
                 mt='20'
               >
                 <Button
