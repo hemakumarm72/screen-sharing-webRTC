@@ -19,15 +19,15 @@ const Options = () => {
     useContext(SocketContext);
 
   const [idToCall, setIdToCall] = useState('');
-  const currentUrl = () => {
-    let url = window.location.href;
+  // const currentUrl = () => {
+  //   let url = window.location.href;
 
-    if (url.endsWith('/')) {
-      url = url.slice(0, -1);
-    }
+  //   if (url.endsWith('/')) {
+  //     url = url.slice(0, -1);
+  //   }
 
-    return url;
-  };
+  //   return url;
+  // };
   return (
     <Container maxW='100vw' m='100px 0' p='0'>
       <Box p='10px' border='2px' borderColor='black' borderStyle='solid'>
