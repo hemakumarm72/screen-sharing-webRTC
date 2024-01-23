@@ -33,33 +33,40 @@ const ContextProvider = ({ children }) => {
   const connectionRef1 = useRef();
   const [callScreenAccept, setCallScreenAccept] = useState({});
   const [client, setClient] = useState();
-
   useEffect(() => {
-    navigator.mediaDevices
-      .getUserMedia({
-        video: true,
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-          googEchoCancellation: true,
-          googAutoGainControl: true,
-          googNoiseSuppression: true,
-          googHighpassFilter: true,
-          googTypingNoiseDetection: true,
-          googNoiseReduction: true,
-          volume: 1.0,
-        },
-      })
-      .then((currentStream) => {
-        setStream(currentStream);
-        console.log(currentStream);
-        myVideo.current.srcObject = currentStream;
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    async function test() {
+      await navigator.mediaDevices
+        .getUserMedia({
+          video: true,
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+            googEchoCancellation: true,
+            googAutoGainControl: true,
+            googNoiseSuppression: true,
+            googHighpassFilter: true,
+            googTypingNoiseDetection: true,
+            googNoiseReduction: true,
+            volume: 1.0,
+          },
+        })
+        .then((currentStream) => {
+          if (currentStream && currentStream instanceof MediaStream) {
+            setStream(currentStream);
+            console.log(currentStream);
+            myVideo.current.srcObject = currentStream;
+          } else {
+            console.error('Invalid or null stream obtained.');
+          }
+        })
 
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+
+    test();
     socket.on('me', (id) => setMe(id));
     socket.on('callUser', ({ from, name: callerName, signal }) => {
       setClient(from);
@@ -81,49 +88,53 @@ const ContextProvider = ({ children }) => {
   const callUser = (id) => {
     // in your client code - create a wrapper and connect to your server
 
-    const peer = new Peer({
-      initiator: true,
-      trickle: false,
+    try {
+      console.log(id);
+      console.log(stream);
+      const peer = new Peer({
+        initiator: true,
+        trickle: false,
 
-      wrtc,
-      config: {
-        iceServers: [
-          {
-            urls: 'turn:video.turn.thelifeplushospital.co.in',
-            credential: 1234,
-            username: 'lifeplus',
-          },
-        ],
-      },
+        wrtc,
+        config: {
+          iceServers: [
+            {
+              urls: 'turn:video.turn.thelifeplushospital.co.in',
+              credential: 1234,
+              username: 'lifeplus',
+            },
+          ],
+        },
 
-      stream,
-      // wrtc: {
-      //   RTCPeerConnection: {
-      //     encodedInsertableStreams: true,
-      //   },
-      // },
-    });
-    // peer.addStream(stream);
-    peer.on('signal', (data) => {
-      socket.emit('callUser', {
-        userToCall: id,
-        signalData: data,
-        from: me,
-        name,
+        stream,
       });
-    });
+      // peer.addStream(stream);
+      peer.on('signal', (data) => {
+        socket.emit('callUser', {
+          userToCall: id,
+          signalData: data,
+          from: me,
+          name,
+        });
+      });
 
-    setClient(id);
-    peer.on('stream', (currentStream) => {
-      userVideo.current.srcObject = currentStream;
-    });
-    socket.on('callAccepted', (signal) => {
-      setCallAccepted(true);
-      peer.signal(signal);
-    });
-    connectionRef.current = peer;
+      setClient(id);
+      peer.on('stream', (currentStream) => {
+        userVideo.current.srcObject = currentStream;
+      });
+      socket.on('callAccepted', (signal) => {
+        setCallAccepted(true);
+        peer.signal(signal);
+      });
+      connectionRef.current = peer;
+    } catch (error) {
+      console.log(error);
+    }
   };
 
+  const test = (code) => {
+    callUser(code);
+  };
   const answerCall = () => {
     setCallAccepted(true);
     const peer = new Peer({
@@ -322,6 +333,7 @@ const ContextProvider = ({ children }) => {
         handleOpen,
         callScreenAccept,
         answerCall,
+        test,
         callScreenAccepted,
         setCallScreenAccept,
         commonScreenShare,

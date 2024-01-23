@@ -1,4 +1,5 @@
-import { useState, useContext } from 'react';
+/* eslint-disable no-unused-expressions */
+import { useState, useContext, useEffect, useRef } from 'react';
 import {
   Button,
   Input,
@@ -16,8 +17,17 @@ import { SocketContext } from '../Context';
 const Options = () => {
   const { me, callAccepted, name, setName, callEnded, leaveCall, callUser } =
     useContext(SocketContext);
-  const [idToCall, setIdToCall] = useState('');
 
+  const [idToCall, setIdToCall] = useState('');
+  const currentUrl = () => {
+    let url = window.location.href;
+
+    if (url.endsWith('/')) {
+      url = url.slice(0, -1);
+    }
+
+    return url;
+  };
   return (
     <Container maxW='100vw' m='100px 0' p='0'>
       <Box p='10px' border='2px' borderColor='black' borderStyle='solid'>
@@ -37,10 +47,7 @@ const Options = () => {
                 onChange={(e) => setName(e.target.value)}
                 width='100%'
               />
-              <CopyToClipboard
-                text={`${window.location.href}code=${me}`}
-                mt='20'
-              >
+              <CopyToClipboard text={`${currentUrl()}?code=${me}`} mt='20'>
                 <Button
                   leftIcon={<BiClipboard />}
                   colorScheme='teal'
