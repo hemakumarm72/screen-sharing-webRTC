@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-expressions */
-import { useState, useContext, useEffect, useRef } from 'react';
+import { useState, useContext } from 'react';
 import {
   Button,
   Input,
