@@ -99,7 +99,7 @@ const ContextProvider = ({ children }) => {
         config: {
           iceServers: [
             {
-              urls: 'turn:video.turn.thelifeplushospital.co.in',
+              urls: 'turn:video.turn.thelifeplushospital.com',
               credential: 1234,
               username: 'lifeplus',
             },
